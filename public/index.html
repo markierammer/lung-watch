@@ -1,43 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lung-Watch | Home</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <div class="container" id="auth-section">
+        <h1>Welcome to Lung-Watch</h1>
+        
+        <!-- Login Form -->
+        <div id="login-section" class="form-container">
+            <h2>Login</h2>
+            <form id="login-form">
+                <label for="login-identifier">Name or License Number:</label>
+                <input type="text" id="login-identifier" placeholder="Enter Name or License Number" required>
+                
+                <label for="password-login">Password:</label>
+                <input type="password" id="password-login" required>
+                
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" onclick="showSignup()">Create one</a></p>
+        </div>
+        
+        <!-- Signup Form -->
+        <div id="signup-section" class="form-container" style="display: none;">
+            <h2>Create Account</h2>
+            <form id="signup-form">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" placeholder="Enter Full Name" required>
+                
+                <label for="license-signup">License Number:</label>
+                <input type="text" id="license-signup" placeholder="Enter License Number" required>
+                
+                <label for="password-signup">Password:</label>
+                <input type="password" id="password-signup" required>
+                
+                <button type="submit">Create Account</button>
+            </form>
+            <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+            <button onclick="showLogin()">Back to Login</button>
+        </div>
+    </div>
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <!-- Home Page After Login -->
+    <div class="container" id="home-section" style="display: none;">
+        <h1>Lung-Watch Dashboard</h1>
+        <p>Welcome, <span id="user-name"></span>!</p>
+        
+        <div class="upload-section">
+            <h2>Upload X-Ray Image</h2>
+            <input type="file" id="upload-xray" accept="image/*">
+        </div>
+        
+        <div class="camera-section">
+            <h2>Capture X-Ray</h2>
+            <button onclick="openCamera()">Open Camera</button>
+            <video id="camera-stream" autoplay style="display:none;"></video>
+            <canvas id="captured-image" style="display:none;"></canvas>
+        </div>
+    </div>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+        }
+        input, button {
+            width: 95%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+    <script>
+        function showSignup() {
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("signup-section").style.display = "block";
+        }
+
+        function showLogin() {
+            document.getElementById("signup-section").style.display = "none";
+            document.getElementById("login-section").style.display = "block";
+        }
+
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            window.location.href = 'upload.html'; // Redirects to upload page
+        });
+
+        function openCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    let video = document.getElementById("camera-stream");
+                    video.srcObject = stream;
+                    video.style.display = "block";
+                })
+                .catch(function(error) {
+                    alert("Error accessing camera: " + error);
+                });
+        }
+    </script>
+</body>
 </html>

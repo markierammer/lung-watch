@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lung-Watch | Upload</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <h1 class="logo">Lung Watch</h1>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showDiseases()">Lung Diseases</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </nav>
+            <div class="profile-menu">
+                <button onclick="toggleProfileDropdown()" class="profile-icon">&#x1F464;</button>
+                <div id="profile-dropdown" class="dropdown-content" style="display: none;">
+                    <a href="#">Edit Profile</a>
+                    <a href="#" onclick="logout()">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container" id="home-section">
+        <h1 class="title">Lung Diseased Detection</h1>
+        
+        <div class="upload-container">
+            <div class="upload-box" onclick="document.getElementById('upload-xray').click()">
+                <input type="file" id="upload-xray" accept="image/*" style="display:none;" onchange="previewImage(event)">
+                <img id="xray-preview" src="" alt="X-ray Preview" style="display:none; width:100%;">
+                <p>Drop an Image <br> or <br> Click to Browse</p>
+            </div>
+            
+            <div class="upload-box" onclick="openCamera()">
+                <video id="camera-stream" autoplay style="display:none; width:100%;"></video>
+                <canvas id="captured-image" style="display:none;"></canvas>
+                <img id="camera-preview" src="" alt="Captured Image" style="display:none; width:100%;">
+                <p>Click to Open Camera</p>
+            </div>
+        </div>
+        
+        <button id="submit-btn" class="submit-btn" onclick="submitImage()">Submit</button>
+    </div>
+    
+    <div class="container" id="disease-section" style="display: none;">
+        <h2>Lung Diseases</h2>
+        <p><strong>Bronchitis:</strong> Inflammation of the bronchial tubes, causing cough and mucus production.</p>
+        <p><strong>Emphysema:</strong> A condition that damages lung air sacs, leading to shortness of breath.</p>
+        <p><strong>Asthma:</strong> A chronic condition that causes airway inflammation and breathing difficulty.</p>
+        <button onclick="goBack()">Back</button>
+    </div>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .navbar {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo {
+            margin-left: 20px;
+        }
+        .navbar nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .navbar nav ul li {
+            margin: 0 15px;
+        }
+        .navbar nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .profile-menu {
+            position: relative;
+        }
+        .profile-icon {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+        .dropdown-content {
+            position: absolute;
+            right: 0;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            border-radius: 5px;
+        }
+        .dropdown-content a {
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            color: black;
+        }
+        .dropdown-content a:hover {
+            background: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            margin: 50px auto;
+        }
+        .upload-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .upload-box {
+            width: 45%;
+            height: 150px;
+            border: 2px dashed #007bff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .upload-box p {
+            font-size: 14px;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    
+    <script>
+        function showDiseases() {
+            document.getElementById("home-section").style.display = "none";
+            document.getElementById("disease-section").style.display = "block";
+        }
+
+        function goBack() {
+            document.getElementById("disease-section").style.display = "none";
+            document.getElementById("home-section").style.display = "block";
+        }
+
+        function toggleProfileDropdown() {
+            let dropdown = document.getElementById("profile-dropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+
+        function logout() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
