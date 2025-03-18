@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/lung-watch/public/">
+    <title>Lung-Watch | Results</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <h1 class="logo">Lung Watch</h1>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showDiseases()">Lung Diseases</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </nav>
+            <div class="profile-menu">
+                <button onclick="toggleProfileDropdown()" class="profile-icon">&#x1F464;</button>
+                <div id="profile-dropdown" class="dropdown-content" style="display: none;">
+                    <a href="#">Edit Profile</a>
+                    <a href="#" onclick="logout()">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="results-container">
+        <div class="results-grid">
+            <div class="xray-section">
+                <div class="image-container">
+                    <img id="analyzed-xray" src="" alt="Analyzed X-Ray">
+                    <canvas id="marker-canvas" class="marker-canvas"></canvas>
+                </div>
+                <div class="marker-tools">
+                    <div class="drawing-tools">
+                        <button class="tool-btn" onclick="selectTool('pen')" id="pen-tool">
+                            <i class="fas fa-pen"></i> Pen
+                        </button>
+                        <div class="color-buttons">
+                            <button class="color-btn" onclick="selectColor('red')" style="background-color: #e74c3c;"></button>
+                            <button class="color-btn" onclick="selectColor('yellow')" style="background-color: #f1c40f;"></button>
+                            <button class="color-btn" onclick="selectColor('green')" style="background-color: #2ecc71;"></button>
+                        </div>
+                    </div>
+                    <button class="clear-btn" onclick="clearMarkers()">
+                        <i class="fas fa-trash"></i> Clear Board
+                    </button>
+                </div>
+            </div>
+            <div class="analysis-section">
+                <div class="disease-detection">
+                    <h2>DISEASE DETECTED</h2>
+                    <div class="confidence-bars">
+                        <div class="confidence-bar">
+                            <span class="disease">BRONCHITIS</span>
+                            <div class="bar-container">
+                                <div class="bar bronchitis" style="width: 95%;">95%</div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar">
+                            <span class="disease">PNEUMONIA</span>
+                            <div class="bar-container">
+                                <div class="bar pneumonia" style="width: 3%;">3%</div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar">
+                            <span class="disease">ASTHMA</span>
+                            <div class="bar-container">
+                                <div class="bar asthma" style="width: 2%;">2%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="analysis-summary">
+                    <h3>ANALYSIS SUMMARY</h3>
+                    <p class="summary-text">High likelihood of Bronchitis detected. Review of the lower right lung region is recommended.</p>
+                </div>
+                <div class="action-buttons">
+                    <button onclick="window.location.href='upload.html'" class="new-scan-btn">
+                        <i class="fas fa-camera"></i> New Scan
+                    </button>
+                    <button onclick="downloadReport()" class="download-btn">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .results-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .xray-section {
+            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .xray-section img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .analysis-section {
+            padding: 20px;
+        }
+        .disease-detection {
+            margin-bottom: 30px;
+        }
+        .disease-detection h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .confidence-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .confidence-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .disease {
+            width: 100px;
+            text-align: right;
+            font-size: 14px;
+            color: #34495e;
+        }
+        .bar-container {
+            flex-grow: 1;
+            background: #f0f0f0;
+            height: 25px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .bar {
+            height: 100%;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 14px;
+            transition: width 0.3s ease;
+        }
+        .bar.bronchitis {
+            background: #2ecc71;
+        }
+        .bar.pneumonia {
+            background: #e74c3c;
+        }
+        .bar.asthma {
+            background: #f1c40f;
+        }
+        .analysis-summary {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .analysis-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .summary-text {
+            color: #34495e;
+            line-height: 1.6;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .new-scan-btn, .download-btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .new-scan-btn {
+            background: #3498db;
+            color: white;
+        }
+        .download-btn {
+            background: #2c3e50;
+            color: white;
+        }
+        .new-scan-btn:hover, .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar .logo {
+            margin-left: 0;
+            color: #ecf0f1;
+            font-weight: 600;
+        }
+        .navbar nav {
+            margin-left: auto;
+            margin-right: 20px;
+        }
+        .navbar nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+        .navbar nav ul li {
+            margin: 0;
+        }
+        .navbar nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+        }
+        .navbar nav ul li a:hover {
+            color: #3498db;
+        }
+        .profile-menu {
+            position: relative;
+            margin-right: 20px;
+        }
+        .profile-icon {
+            background: #3498db;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .profile-icon:hover {
+            background: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .dropdown-content {
+            position: absolute;
+            right: 0;
+            top: 50px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            border-radius: 8px;
+            min-width: 160px;
+            z-index: 1000;
+            border: 1px solid #ecf0f1;
+        }
+        .dropdown-content a {
+            padding: 12px 20px;
+            display: block;
+            text-decoration: none;
+            color: #2c3e50;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+        .dropdown-content a:hover {
+            background: #f8f9fa;
+            color: #3498db;
+            padding-left: 25px;
+        }
+        .dropdown-content a:active {
+            background: #ecf0f1;
+        }
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .marker-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: all;
+            cursor: crosshair;
+        }
+        .marker-tools {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+        .drawing-tools {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .tool-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .tool-btn:hover {
+            background-color: #2980b9;
+        }
+        .tool-btn.active {
+            background-color: #2c3e50;
+        }
+        .color-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 5px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .color-btn {
+            width: 25px;
+            height: 25px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+        .color-btn.active {
+            border-color: #2c3e50;
+            transform: scale(1.1);
+        }
+        .clear-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e74c3c;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .clear-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+    </style>
+
+    <script>
+        let currentColor = '#e74c3c';
+        let isDrawing = false;
+        let canvas, ctx;
+        let markers = [];
+
+        window.onload = function() {
+            const xrayImage = sessionStorage.getItem('xrayImage');
+            if (xrayImage) {
+                const img = document.getElementById('analyzed-xray');
+                img.src = xrayImage;
+                img.onload = function() {
+                    setupCanvas();
+                };
+            } else {
+                window.location.href = 'upload.html';
+            }
+        };
+
+        function setupCanvas() {
+            canvas = document.getElementById('marker-canvas');
+            const img = document.getElementById('analyzed-xray');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx = canvas.getContext('2d');
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+        }
+
+        function selectColor(color) {
+            const colorMap = {
+                'red': '#e74c3c',
+                'yellow': '#f1c40f',
+                'green': '#2ecc71'
+            };
+            
+            currentColor = colorMap[color];
+            
+            // Update active state of color buttons
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.style.backgroundColor === colorMap[color]) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            markers.push({ color: currentColor, points: [{x, y}] });
+            drawMarkers();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            markers[markers.length - 1].points.push({x, y});
+            drawMarkers();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function drawMarkers() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            markers.forEach(marker => {
+                if (marker.points.length < 2) return;
+                ctx.beginPath();
+                ctx.moveTo(marker.points[0].x, marker.points[0].y);
+                for (let i = 1; i < marker.points.length; i++) {
+                    ctx.lineTo(marker.points[i].x, marker.points[i].y);
+                }
+                ctx.strokeStyle = marker.color;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+            });
+        }
+
+        function clearMarkers() {
+            markers = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function toggleProfileDropdown() {
+            let dropdown = document.getElementById("profile-dropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+
+        function logout() {
+            const basePath = window.location.pathname.split('/public/')[0];
+            window.location.href = basePath + '/public/index.html';
+        }
+
+        function downloadReport() {
+            alert("Downloading report...");
+        }
+
+        // Initialize the first color as active
+        window.addEventListener('load', function() {
+            document.querySelector('.color-btn').classList.add('active');
+        });
+    </script>
+</body>
+</html> 
