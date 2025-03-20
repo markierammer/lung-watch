@@ -1,0 +1,298 @@
+.results-container {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.upload-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-name {
+    font-size: 1rem;
+    color: #ecf0f1;
+}
+
+.logout-btn {
+    padding: 0.5rem 1rem;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+.results-grid {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.xray-section {
+    position: relative;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.marker-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: all;
+    cursor: crosshair;
+    touch-action: none;
+    z-index: 1;
+    background: transparent;
+}
+
+.marker-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+.drawing-tools {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.tool-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tool-btn:hover {
+    background-color: #2980b9;
+}
+
+.tool-btn.active {
+    background-color: #2c3e50;
+}
+
+.color-buttons {
+    display: flex;
+    gap: 10px;
+    padding: 5px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.color-btn {
+    width: 25px;
+    height: 25px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border-color: #2c3e50;
+    transform: scale(1.1);
+}
+
+.clear-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #e74c3c;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.clear-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.analysis-section {
+    padding: 20px;
+}
+
+.disease-detection {
+    margin-bottom: 30px;
+}
+
+.disease-detection h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.confidence-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.confidence-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.disease {
+    width: 100px;
+    text-align: right;
+    font-size: 14px;
+    color: #34495e;
+}
+
+.bar-container {
+    flex-grow: 1;
+    background: #f0f0f0;
+    height: 25px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 14px;
+    transition: width 0.3s ease;
+}
+
+.bar.bronchitis {
+    background: #2ecc71;
+}
+
+.bar.pneumonia {
+    background: #e74c3c;
+}
+
+.bar.asthma {
+    background: #f1c40f;
+}
+
+.analysis-summary {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.analysis-summary h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.summary-text {
+    color: #34495e;
+    line-height: 1.6;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.new-scan-btn, .download-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.new-scan-btn {
+    background: #3498db;
+    color: white;
+}
+
+.download-btn {
+    background: #2c3e50;
+    color: white;
+}
+
+.new-scan-btn:hover, .download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+} 
