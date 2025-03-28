@@ -50,9 +50,125 @@
 }
 
 .upload-container {
-    padding: 2rem;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.upload-content {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.upload-box {
+    background-color: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.upload-box h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.upload-area {
+    width: 100%;
+    height: 300px;
+    border: 2px dashed #3498db;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.upload-area:hover {
+    border-color: #2980b9;
+    background-color: #ecf0f1;
+}
+
+.upload-placeholder {
+    text-align: center;
+    color: #7f8c8d;
+}
+
+.upload-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #3498db;
+}
+
+.upload-placeholder p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.upload-placeholder span {
+    font-size: 14px;
+    color: #95a5a6;
+}
+
+.preview-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.remove-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-button:hover {
+    background-color: #c0392b;
+}
+
+.upload-actions {
+    margin-top: 20px;
+}
+
+.upload-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.upload-button:hover {
+    background-color: #2980b9;
+}
+
+.upload-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
 }
 
 .page-title {
@@ -101,7 +217,6 @@
     font-weight: 600;
 }
 
-.upload-box,
 .camera-box {
     width: 100%;
     height: 300px;
@@ -115,31 +230,29 @@
     transition: all 0.3s ease;
     overflow: hidden;
     background-color: #f8f9fa;
+    position: relative;
 }
 
-.upload-box:hover,
 .camera-box:hover {
     border-color: #2980b9;
     background-color: #ecf0f1;
 }
 
-.upload-placeholder,
 .camera-placeholder {
     text-align: center;
     color: #7f8c8d;
 }
 
-.upload-placeholder i,
 .camera-placeholder i {
     font-size: 3rem;
     margin-bottom: 1rem;
     color: #3498db;
 }
 
-.preview-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+.camera-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
 .action-btn {
@@ -151,16 +264,10 @@
     font-weight: 500;
     transition: all 0.3s ease;
     min-width: 120px;
-}
-
-.remove-btn {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.remove-btn:hover {
-    background-color: #c0392b;
-    transform: translateY(-2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .capture-btn {
@@ -183,11 +290,6 @@
     transform: translateY(-2px);
 }
 
-.camera-buttons {
-    display: flex;
-    gap: 1rem;
-}
-
 .submit-btn {
     width: 100%;
     padding: 1rem;
@@ -199,13 +301,19 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 2rem;
 }
 
 .submit-btn:hover {
     background-color: #2980b9;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit-btn:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 video {

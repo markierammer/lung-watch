@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Login.css';  // We'll reuse the login styles
+import { Link, useNavigate } from 'react-router-dom';
+import './Register.css';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -8,84 +8,57 @@ const Register = () => {
         license_number: '',
         name: '',
         password: '',
-        confirm_password: ''
+        email: '',
+        specialization: '',
+        hospital: ''
     });
-    const [message, setMessage] = useState('');
-    const [isError, setIsError] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Validate passwords match
-        if (formData.password !== formData.confirm_password) {
-            setMessage('Passwords do not match');
-            setIsError(true);
-            return;
-        }
+        setError('');
 
         try {
-            console.log('Attempting to register with:', {
-                license_number: formData.license_number,
-                name: formData.name,
-                password: formData.password
-            });
-
-            const response = await fetch('http://localhost:5000/api/register', {
+            const response = await fetch('http://localhost:5000/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    license_number: formData.license_number,
-                    name: formData.name,
-                    password: formData.password
-                })
+                body: JSON.stringify(formData)
             });
 
-            console.log('Response status:', response.status);
             const data = await response.json();
-            console.log('Response data:', data);
 
             if (data.success) {
-                setMessage('Registration successful! Redirecting to login...');
-                setIsError(false);
-                // Redirect to login page after 2 seconds
-                setTimeout(() => {
-                    navigate('/');
-                }, 2000);
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(data.user));
+                navigate('/upload');
             } else {
-                setMessage(data.message || 'Registration failed. Please try again.');
-                setIsError(true);
+                setError(data.message || 'Registration failed');
             }
-        } catch (error) {
-            console.error('Registration error:', error);
-            setMessage('An error occurred. Please make sure the server is running.');
-            setIsError(true);
+        } catch (err) {
+            setError('Failed to connect to server');
         }
     };
 
     return (
-        <div className="login-container">
-            <div className="login-box">
-                <h2>Register</h2>
-                {message && (
-                    <div className={`message ${isError ? 'error' : 'success'}`}>
-                        {message}
-                    </div>
-                )}
+        <div className="register-container">
+            <div className="register-card">
+                <h2>Create Account</h2>
+                {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="license_number">License Number</label>
+                        <label>License Number</label>
                         <input
                             type="text"
-                            id="license_number"
                             name="license_number"
                             value={formData.license_number}
                             onChange={handleChange}
@@ -93,10 +66,9 @@ const Register = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="name">Full Name</label>
+                        <label>Full Name</label>
                         <input
                             type="text"
-                            id="name"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
@@ -104,31 +76,49 @@ const Register = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Specialization</label>
+                        <input
+                            type="text"
+                            name="specialization"
+                            value={formData.specialization}
+                            onChange={handleChange}
+                            placeholder="e.g., Pulmonologist, Radiologist"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Hospital/Clinic</label>
+                        <input
+                            type="text"
+                            name="hospital"
+                            value={formData.hospital}
+                            onChange={handleChange}
+                            placeholder="Your workplace"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Password</label>
                         <input
                             type="password"
-                            id="password"
                             name="password"
                             value={formData.password}
                             onChange={handleChange}
                             required
                         />
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="confirm_password">Confirm Password</label>
-                        <input
-                            type="password"
-                            id="confirm_password"
-                            name="confirm_password"
-                            value={formData.confirm_password}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <button type="submit">Register</button>
+                    <button type="submit" className="register-button">Register</button>
                 </form>
-                <p className="register-link">
-                    Already have an account? <a href="/">Login here</a>
+                <p className="login-link">
+                    Already have an account? <Link to="/login">Login here</Link>
                 </p>
             </div>
         </div>

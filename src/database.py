@@ -25,7 +25,7 @@ class Database:
                 database=database,
                 auth_plugin='mysql_native_password'  # Explicitly specify authentication plugin
             )
-            self.cursor = self.connection.cursor()
+            self.cursor = self.connection.cursor(dictionary=True)  # Use dictionary cursor
             self.create_tables()
             print("Successfully connected to MySQL database")
         except Error as e:
@@ -37,13 +37,16 @@ class Database:
             raise Exception("Database connection not established")
             
         try:
-            # Create users table with simplified structure
+            # Create users table with new fields
             self.cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     license_number VARCHAR(50) UNIQUE NOT NULL,
                     name VARCHAR(100) NOT NULL,
                     password VARCHAR(255) NOT NULL,
+                    email VARCHAR(255),
+                    specialization VARCHAR(100),
+                    hospital VARCHAR(255),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
@@ -57,63 +60,64 @@ class Database:
         """Hash a password using SHA-256"""
         return hashlib.sha256(password.encode()).hexdigest()
 
-    def register_user(self, license_number, name, password):
-        """Register a new user"""
-        if not self.connection or not self.cursor:
-            raise Exception("Database connection not established")
-            
+    def register_user(self, license_number, name, password, email=None, specialization=None, hospital=None):
         try:
             # Check if user already exists
-            if self.check_license_exists(license_number):
-                return {"success": False, "message": "License number already registered"}
-            
-            hashed_password = self.hash_password(password)
+            self.cursor.execute("SELECT * FROM users WHERE license_number = %s", (license_number,))
+            if self.cursor.fetchone():
+                return False, "License number already registered"
+
+            # Hash the password
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+            # Insert new user
             query = """
-                INSERT INTO users (license_number, name, password)
-                VALUES (%s, %s, %s)
+                INSERT INTO users (license_number, name, password, email, specialization, hospital)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """
-            self.cursor.execute(query, (license_number, name, hashed_password))
+            values = (license_number, name, hashed_password, email, specialization, hospital)
+            
+            print("Executing query with values:", values)  # Debug print
+            self.cursor.execute(query, values)
             self.connection.commit()
-            print(f"Successfully registered user: {name}")
-            return {"success": True, "message": "Registration successful"}
+
+            # Get the user data to return
+            self.cursor.execute("""
+                SELECT id, license_number, name, email, specialization, hospital
+                FROM users WHERE license_number = %s
+            """, (license_number,))
+            user = self.cursor.fetchone()
+            
+            print("Successfully registered user:", user)  # Debug print
+            return True, user
+
         except Error as e:
-            print(f"Error registering user: {e}")
-            return {"success": False, "message": "Registration failed"}
+            print(f"Error in register_user: {e}")
+            self.connection.rollback()
+            return False, str(e)
 
     def login_user(self, license_number, password):
-        """Authenticate a user"""
-        if not self.connection or not self.cursor:
-            raise Exception("Database connection not established")
-            
         try:
-            # First check if user exists
-            if not self.check_license_exists(license_number):
-                return {"success": False, "message": "Account not found. Please register first."}
-            
-            hashed_password = self.hash_password(password)
+            # Hash the password
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+            # Get user with all fields except password
             query = """
-                SELECT id, license_number, name
-                FROM users
+                SELECT id, license_number, name, email, specialization, hospital
+                FROM users 
                 WHERE license_number = %s AND password = %s
             """
             self.cursor.execute(query, (license_number, hashed_password))
             user = self.cursor.fetchone()
             
             if user:
-                print(f"Login successful for user: {user[2]}")
-                return {
-                    "success": True,
-                    "message": "Login successful",
-                    "user": {
-                        'id': user[0],
-                        'license_number': user[1],
-                        'name': user[2]
-                    }
-                }
-            return {"success": False, "message": "Invalid credentials"}
+                print("Login successful for user:", user)
+                return True, user
+            return False, "Invalid credentials"
+
         except Error as e:
-            print(f"Error logging in user: {e}")
-            return {"success": False, "message": "Login failed"}
+            print(f"Error in login_user: {e}")
+            return False, str(e)
 
     def check_license_exists(self, license_number):
         """Check if a license number already exists"""
@@ -121,18 +125,16 @@ class Database:
             raise Exception("Database connection not established")
             
         try:
-            query = "SELECT COUNT(*) FROM users WHERE license_number = %s"
+            query = "SELECT COUNT(*) as count FROM users WHERE license_number = %s"
             self.cursor.execute(query, (license_number,))
-            count = self.cursor.fetchone()[0]
-            return count > 0
+            result = self.cursor.fetchone()
+            return result['count'] > 0
         except Error as e:
             print(f"Error checking license number: {e}")
             return False
 
-    def close(self):
-        """Close the database connection"""
-        if self.cursor:
+    def __del__(self):
+        if hasattr(self, 'connection') and self.connection.is_connected():
             self.cursor.close()
-        if self.connection and self.connection.is_connected():
             self.connection.close()
             print("Database connection closed")

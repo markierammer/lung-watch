@@ -1,23 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navigation from './Navigation';
 import './Results.css';
 
 const Results = () => {
     const navigate = useNavigate();
-    const [currentColor, setCurrentColor] = useState('#e74c3c');
-    const [isDrawing, setIsDrawing] = useState(false);
-    const [markers, setMarkers] = useState([]);
-    const canvasRef = useRef(null);
-    const imageRef = useRef(null);
     const [user, setUser] = useState(null);
     const [imageLoaded, setImageLoaded] = useState(false);
-    const [canvasReady, setCanvasReady] = useState(false);
-    const [imageData, setImageData] = useState(null);
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [currentColor, setCurrentColor] = useState('#e74c3c');
+    const [markers, setMarkers] = useState([]);
+    const imageRef = useRef(null);
+    const canvasRef = useRef(null);
+    const currentPath = useRef([]);
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
         if (!userData) {
-            navigate('/');
+            navigate('/login');
             return;
         }
         setUser(JSON.parse(userData));
@@ -28,129 +28,128 @@ const Results = () => {
             return;
         }
 
-        setImageData(xrayImage);
+        const img = new Image();
+        img.src = xrayImage;
+        img.onload = () => {
+            if (imageRef.current) {
+                imageRef.current.src = xrayImage;
+                setImageLoaded(true);
+            }
+        };
     }, [navigate]);
 
     useEffect(() => {
-        if (imageData && imageRef.current) {
-            imageRef.current.src = imageData;
+        if (imageLoaded) {
+            setupCanvas();
         }
-    }, [imageData]);
-
-    const handleImageLoad = () => {
-        setImageLoaded(true);
-        setupCanvas();
-    };
+    }, [imageLoaded]);
 
     const setupCanvas = () => {
+        if (!canvasRef.current || !imageRef.current) return;
+
         const canvas = canvasRef.current;
-        const img = imageRef.current;
-        if (canvas && img) {
-            // Set canvas size to match image dimensions
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            
-            // Scale canvas display size to match container
-            const container = canvas.parentElement;
-            const scale = Math.min(container.clientWidth / img.naturalWidth, container.clientHeight / img.naturalHeight);
-            canvas.style.width = `${img.naturalWidth * scale}px`;
-            canvas.style.height = `${img.naturalHeight * scale}px`;
-
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.lineWidth = 3;
-                setCanvasReady(true);
-
-                // Add event listeners
-                canvas.addEventListener('mousedown', startDrawing);
-                canvas.addEventListener('mousemove', draw);
-                canvas.addEventListener('mouseup', stopDrawing);
-                canvas.addEventListener('mouseout', stopDrawing);
-            }
-        }
-    };
-
-    const selectColor = (color) => {
-        const colorMap = {
-            'red': '#e74c3c',
-            'yellow': '#f1c40f',
-            'green': '#2ecc71'
-        };
-        setCurrentColor(colorMap[color]);
-    };
-
-    const getCanvasCoordinates = (e) => {
-        const canvas = canvasRef.current;
-        if (!canvas) return { x: 0, y: 0 };
+        const image = imageRef.current;
         
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        drawMarkers();
+    };
+
+    const getCanvasCoordinates = (event) => {
+        const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
         
         return {
-            x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top) * scaleY
+            x: (event.clientX - rect.left) * scaleX,
+            y: (event.clientY - rect.top) * scaleY
         };
     };
 
-    const startDrawing = (e) => {
-        if (!canvasReady) return;
+    const startDrawing = (event) => {
+        if (!canvasRef.current) return;
+        
+        event.preventDefault();
+        const coords = getCanvasCoordinates(event);
         setIsDrawing(true);
-        const coords = getCanvasCoordinates(e);
-        setMarkers(prev => [...prev, { color: currentColor, points: [coords] }]);
-        drawMarkers();
+        currentPath.current = [{ x: coords.x, y: coords.y }];
+        
+        window.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
     };
 
-    const draw = (e) => {
-        if (!isDrawing || !canvasReady) return;
-        const coords = getCanvasCoordinates(e);
-        setMarkers(prev => {
-            const newMarkers = [...prev];
-            newMarkers[newMarkers.length - 1].points.push(coords);
-            return newMarkers;
-        });
+    const draw = (event) => {
+        if (!isDrawing || !canvasRef.current) return;
+        
+        event.preventDefault();
+        const coords = getCanvasCoordinates(event);
+        currentPath.current.push({ x: coords.x, y: coords.y });
         drawMarkers();
     };
 
     const stopDrawing = () => {
+        if (!isDrawing) return;
+        
         setIsDrawing(false);
+        if (currentPath.current.length > 1) {
+            setMarkers([...markers, { 
+                points: [...currentPath.current],
+                color: currentColor
+            }]);
+        }
+        currentPath.current = [];
+        
+        window.removeEventListener('mousemove', draw);
+        window.removeEventListener('mouseup', stopDrawing);
     };
 
     const drawMarkers = () => {
+        if (!canvasRef.current) return;
+        
         const canvas = canvasRef.current;
-        if (!canvas || !canvasReady) return;
-
         const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
         markers.forEach(marker => {
             if (marker.points.length < 2) return;
             
             ctx.beginPath();
+            ctx.strokeStyle = marker.color;
             ctx.moveTo(marker.points[0].x, marker.points[0].y);
             
             for (let i = 1; i < marker.points.length; i++) {
                 ctx.lineTo(marker.points[i].x, marker.points[i].y);
             }
-            
-            ctx.strokeStyle = marker.color;
             ctx.stroke();
         });
+        
+        if (currentPath.current.length > 1) {
+            ctx.beginPath();
+            ctx.strokeStyle = currentColor;
+            ctx.moveTo(currentPath.current[0].x, currentPath.current[0].y);
+            
+            for (let i = 1; i < currentPath.current.length; i++) {
+                ctx.lineTo(currentPath.current[i].x, currentPath.current[i].y);
+            }
+            ctx.stroke();
+        }
     };
 
     const clearMarkers = () => {
         setMarkers([]);
-        const canvas = canvasRef.current;
-        if (!canvas || !canvasReady) return;
+        if (canvasRef.current) {
+            const ctx = canvasRef.current.getContext('2d');
+            ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        }
+    };
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const selectColor = (color) => {
+        setCurrentColor(color);
     };
 
     const handleLogout = () => {
@@ -164,68 +163,43 @@ const Results = () => {
 
     return (
         <div className="results-container">
-            <header className="upload-header">
-                <div className="header-content">
-                    <h1>Lung-Watch</h1>
-                    <div className="user-section">
-                        <span className="user-name">Welcome, {user.name}</span>
-                        <button onClick={handleLogout} className="logout-btn">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </header>
-
+            <Navigation />
             <div className="results-grid">
                 <div className="xray-section">
                     <div className="image-container">
                         <img 
                             ref={imageRef} 
                             alt="Analyzed X-Ray" 
-                            onLoad={handleImageLoad}
                             style={{ display: imageLoaded ? 'block' : 'none' }}
                         />
                         {imageLoaded && (
                             <canvas 
                                 ref={canvasRef} 
                                 className="marker-canvas"
-                                style={{ 
-                                    display: 'block',
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    touchAction: 'none'
-                                }}
+                                onMouseDown={startDrawing}
                             />
                         )}
                     </div>
-                    <div className="marker-tools">
-                        <div className="drawing-tools">
-                            <button className={`tool-btn ${canvasReady ? 'active' : ''}`}>
-                                <i className="fas fa-pen"></i> Pen
-                            </button>
-                            <div className="color-buttons">
-                                <button 
-                                    className={`color-btn ${currentColor === '#e74c3c' ? 'active' : ''}`}
-                                    onClick={() => selectColor('red')}
-                                    style={{ backgroundColor: '#e74c3c' }}
-                                />
-                                <button 
-                                    className={`color-btn ${currentColor === '#f1c40f' ? 'active' : ''}`}
-                                    onClick={() => selectColor('yellow')}
-                                    style={{ backgroundColor: '#f1c40f' }}
-                                />
-                                <button 
-                                    className={`color-btn ${currentColor === '#2ecc71' ? 'active' : ''}`}
-                                    onClick={() => selectColor('green')}
-                                    style={{ backgroundColor: '#2ecc71' }}
-                                />
-                            </div>
+                    <div className="drawing-tools">
+                        <div className="color-buttons">
+                            <button 
+                                className={`color-button ${currentColor === '#e74c3c' ? 'active' : ''}`}
+                                onClick={() => selectColor('#e74c3c')}
+                                style={{ backgroundColor: '#e74c3c' }}
+                            />
+                            <button 
+                                className={`color-button ${currentColor === '#f1c40f' ? 'active' : ''}`}
+                                onClick={() => selectColor('#f1c40f')}
+                                style={{ backgroundColor: '#f1c40f' }}
+                            />
+                            <button 
+                                className={`color-button ${currentColor === '#2ecc71' ? 'active' : ''}`}
+                                onClick={() => selectColor('#2ecc71')}
+                                style={{ backgroundColor: '#2ecc71' }}
+                            />
                         </div>
-                        <button className="clear-btn" onClick={clearMarkers}>
-                            <i className="fas fa-trash"></i> Clear Board
+                        <button className="action-button clear" onClick={clearMarkers}>
+                            Clear Board
                         </button>
                     </div>
                 </div>
@@ -260,11 +234,11 @@ const Results = () => {
                         </p>
                     </div>
                     <div className="action-buttons">
-                        <button onClick={() => navigate('/upload')} className="new-scan-btn">
-                            <i className="fas fa-camera"></i> New Scan
+                        <button onClick={() => navigate('/upload')} className="action-button">
+                            New Scan
                         </button>
-                        <button onClick={() => alert('Report download functionality will be implemented soon.')} className="download-btn">
-                            <i className="fas fa-download"></i> Download Report
+                        <button className="action-button download">
+                            Download Report
                         </button>
                     </div>
                 </div>

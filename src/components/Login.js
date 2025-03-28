@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
@@ -9,19 +9,23 @@ const Login = () => {
         password: ''
     });
     const [message, setMessage] = useState('');
-    const [isError, setIsError] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setMessage('');
+
         try {
-            const response = await fetch('http://localhost:5000/api/login', {
+            const response = await fetch('http://localhost:5000/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -32,34 +36,28 @@ const Login = () => {
             const data = await response.json();
 
             if (data.success) {
-                setMessage('Login successful!');
-                setIsError(false);
                 // Store user data in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
-                // Redirect to upload page
+                setMessage('Login successful!');
                 navigate('/upload');
             } else {
-                setMessage(data.message);
-                setIsError(true);
+                setError(data.message || 'Login failed');
             }
-        } catch (error) {
-            setMessage('An error occurred. Please try again.');
-            setIsError(true);
+        } catch (err) {
+            setError('An error occurred. Please try again.');
+            console.error('Login error:', err);
         }
     };
 
     return (
         <div className="login-container">
             <div className="login-box">
-                <h2>Login</h2>
-                {message && (
-                    <div className={`message ${isError ? 'error' : 'success'}`}>
-                        {message}
-                    </div>
-                )}
+                <h2>Login to Lung-Watch</h2>
+                {message && <div className="success-message">{message}</div>}
+                {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="license_number">License Number</label>
+                        <label htmlFor="license_number">License Number:</label>
                         <input
                             type="text"
                             id="license_number"
@@ -67,10 +65,11 @@ const Login = () => {
                             value={formData.license_number}
                             onChange={handleChange}
                             required
+                            placeholder="Enter your license number"
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password">Password:</label>
                         <input
                             type="password"
                             id="password"
@@ -78,12 +77,13 @@ const Login = () => {
                             value={formData.password}
                             onChange={handleChange}
                             required
+                            placeholder="Enter your password"
                         />
                     </div>
-                    <button type="submit">Login</button>
+                    <button type="submit" className="login-button">Login</button>
                 </form>
                 <p className="register-link">
-                    Don't have an account? <a href="/register">Register here</a>
+                    Don't have an account? <Link to="/register">Register here</Link>
                 </p>
             </div>
         </div>

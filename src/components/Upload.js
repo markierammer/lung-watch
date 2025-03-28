@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navigation from './Navigation';
 import './Upload.css';
 
 const Upload = () => {
@@ -27,14 +28,14 @@ const Upload = () => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 setPreviewImage(e.target.result);
-                // Store the image data in sessionStorage
                 sessionStorage.setItem('xrayImage', e.target.result);
             };
             reader.readAsDataURL(file);
         }
     };
 
-    const removeImage = () => {
+    const removeImage = (e) => {
+        e.stopPropagation();
         setPreviewImage(null);
         sessionStorage.removeItem('xrayImage');
         if (fileInputRef.current) {
@@ -50,7 +51,6 @@ const Upload = () => {
                 videoRef.current.srcObject = stream;
                 videoRef.current.style.display = 'block';
             }
-            document.getElementById('capture-photo').style.display = 'block';
         } catch (error) {
             alert("Error accessing camera: " + error);
         }
@@ -75,6 +75,7 @@ const Upload = () => {
                 cameraStream.getTracks().forEach(track => track.stop());
                 setCameraStream(null);
             }
+            video.style.display = 'none';
         }
     };
 
@@ -103,50 +104,43 @@ const Upload = () => {
     }
 
     return (
-        <div className="upload-page">
-            <header className="upload-header">
-                <div className="header-content">
-                    <h1>Lung-Watch</h1>
-                    <div className="user-section">
-                        <span className="user-name">Welcome, {user.name}</span>
-                        <button onClick={handleLogout} className="logout-btn">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <main className="upload-container">
+        <div className="upload-container">
+            <Navigation />
+            <div className="upload-content">
                 <div className="page-title">
                     <h2>X-Ray Analysis</h2>
                     <p>Upload or capture an X-Ray image for analysis</p>
                 </div>
-
                 <div className="scan-options">
                     <div className="scan-option">
                         <h2>Upload X-Ray Image</h2>
-                        <div className="upload-box" onClick={() => fileInputRef.current?.click()}>
+                        <div className="upload-area" onClick={() => fileInputRef.current?.click()}>
                             <input
                                 type="file"
                                 ref={fileInputRef}
-                                accept="image/*"
                                 onChange={handleFileUpload}
+                                accept="image/*"
                                 style={{ display: 'none' }}
                             />
-                            {previewImage ? (
-                                <img src={previewImage} alt="X-ray Preview" className="preview-image" />
-                            ) : (
+                            {!previewImage && (
                                 <div className="upload-placeholder">
                                     <i className="fas fa-upload"></i>
                                     <p>Drop an Image <br /> or <br /> Click to Browse</p>
                                 </div>
                             )}
+                            {previewImage && (
+                                <div className="preview-container">
+                                    <img
+                                        src={previewImage}
+                                        alt="Preview"
+                                        className="preview-image"
+                                    />
+                                    <button className="remove-button" onClick={removeImage}>
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                        {previewImage && (
-                            <button className="action-btn remove-btn" onClick={removeImage}>
-                                Remove Image
-                            </button>
-                        )}
                     </div>
 
                     <div className="scan-option">
@@ -161,17 +155,18 @@ const Upload = () => {
                                 ref={canvasRef} 
                                 style={{ display: 'none' }}
                             />
-                            {capturedImage ? (
-                                <img src={capturedImage} alt="Captured X-ray" className="preview-image" />
-                            ) : (
+                            {!cameraStream && !capturedImage && (
                                 <div className="camera-placeholder" onClick={openCamera}>
                                     <i className="fas fa-camera"></i>
                                     <p>Click to Open Camera</p>
                                 </div>
                             )}
+                            {capturedImage && (
+                                <img src={capturedImage} alt="Captured X-ray" className="preview-image" />
+                            )}
                         </div>
                         <div className="camera-buttons">
-                            {!capturedImage && (
+                            {cameraStream && !capturedImage && (
                                 <button className="action-btn capture-btn" onClick={capturePhoto}>
                                     <i className="fas fa-camera"></i> Capture Photo
                                 </button>
@@ -192,7 +187,7 @@ const Upload = () => {
                 >
                     Analyze Image
                 </button>
-            </main>
+            </div>
         </div>
     );
 };

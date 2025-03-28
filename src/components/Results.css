@@ -1,225 +1,199 @@
 .results-container {
     min-height: 100vh;
-    background-color: #f8f9fa;
+    background-color: #f5f5f5;
 }
 
 .upload-header {
     background-color: #2c3e50;
     color: white;
-    padding: 1rem 2rem;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
-    max-width: 1200px;
-    margin: 0 auto;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
 }
 
-.header-content h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 600;
-}
-
-.user-section {
+.header-left {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 15px;
 }
 
-.user-name {
-    font-size: 1rem;
+.header-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
     color: #ecf0f1;
 }
 
-.logout-btn {
-    padding: 0.5rem 1rem;
+.logout-button {
     background-color: #e74c3c;
     color: white;
     border: none;
+    padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    transition: background-color 0.3s;
 }
 
-.logout-btn:hover {
+.logout-button:hover {
     background-color: #c0392b;
 }
 
 .results-grid {
     max-width: 1200px;
-    margin: 30px auto;
-    padding: 20px;
+    margin: 2rem auto;
+    padding: 0 2rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    gap: 2rem;
 }
 
 .xray-section {
-    position: relative;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #f8f9fa;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .image-container {
     position: relative;
     width: 100%;
-    height: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    margin-bottom: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 4px;
     overflow: hidden;
-    background: #f8f9fa;
 }
 
 .image-container img {
-    max-width: 100%;
-    max-height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    display: block;
 }
 
 .marker-canvas {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: all;
+    width: 100% !important;
+    height: 100% !important;
     cursor: crosshair;
-    touch-action: none;
-    z-index: 1;
-    background: transparent;
-}
-
-.marker-tools {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px;
-    background: #f8f9fa;
-    border-top: 1px solid #e0e0e0;
 }
 
 .drawing-tools {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 20px;
-}
-
-.tool-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.tool-btn:hover {
-    background-color: #2980b9;
-}
-
-.tool-btn.active {
-    background-color: #2c3e50;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
 }
 
 .color-buttons {
     display: flex;
-    gap: 10px;
-    padding: 5px;
-    background: white;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    gap: 1rem;
 }
 
-.color-btn {
-    width: 25px;
-    height: 25px;
-    border: 2px solid transparent;
+.color-button {
+    width: 30px;
+    height: 30px;
+    border: none;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.2s;
 }
 
-.color-btn:hover {
+.color-button:hover {
     transform: scale(1.1);
 }
 
-.color-btn.active {
-    border-color: #2c3e50;
-    transform: scale(1.1);
+.color-button.active {
+    border: 2px solid #2c3e50;
 }
 
-.clear-btn {
-    padding: 8px 16px;
+.action-button {
+    padding: 0.5rem 1rem;
     border: none;
-    border-radius: 5px;
-    background-color: #e74c3c;
+    border-radius: 4px;
+    background-color: #3498db;
     color: white;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    transition: background-color 0.3s;
 }
 
-.clear-btn:hover {
+.action-button:hover {
+    background-color: #2980b9;
+}
+
+.action-button.clear {
+    background-color: #e74c3c;
+}
+
+.action-button.clear:hover {
     background-color: #c0392b;
-    transform: translateY(-2px);
+}
+
+.action-button.download {
+    background-color: #2ecc71;
+}
+
+.action-button.download:hover {
+    background-color: #27ae60;
 }
 
 .analysis-section {
-    padding: 20px;
-}
-
-.disease-detection {
-    margin-bottom: 30px;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .disease-detection h2 {
     color: #2c3e50;
-    margin-bottom: 20px;
-    font-size: 24px;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
 }
 
 .confidence-bars {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 1rem;
 }
 
 .confidence-bar {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 1rem;
 }
 
 .disease {
-    width: 100px;
-    text-align: right;
-    font-size: 14px;
-    color: #34495e;
+    min-width: 100px;
+    font-weight: 500;
+    color: #2c3e50;
 }
 
 .bar-container {
     flex-grow: 1;
-    background: #f0f0f0;
-    height: 25px;
-    border-radius: 5px;
+    height: 24px;
+    background-color: #f0f0f0;
+    border-radius: 12px;
     overflow: hidden;
 }
 
@@ -228,33 +202,34 @@
     color: white;
     display: flex;
     align-items: center;
-    padding-left: 10px;
-    font-size: 14px;
+    padding: 0 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
     transition: width 0.3s ease;
 }
 
 .bar.bronchitis {
-    background: #2ecc71;
+    background-color: #e74c3c;
 }
 
 .bar.pneumonia {
-    background: #e74c3c;
+    background-color: #f1c40f;
 }
 
 .bar.asthma {
-    background: #f1c40f;
+    background-color: #2ecc71;
 }
 
 .analysis-summary {
-    margin: 30px 0;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 10px;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
 }
 
 .analysis-summary h3 {
     color: #2c3e50;
-    margin-bottom: 15px;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
 }
 
 .summary-text {
@@ -264,8 +239,8 @@
 
 .action-buttons {
     display: flex;
-    gap: 15px;
-    margin-top: 30px;
+    gap: 1rem;
+    margin-top: 2rem;
 }
 
 .new-scan-btn, .download-btn {
@@ -295,4 +270,10 @@
 .new-scan-btn:hover, .download-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
 } 

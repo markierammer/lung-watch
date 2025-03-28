@@ -5,56 +5,79 @@ from database import Database
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-@app.route('/api/register', methods=['POST'])
+db = Database()
+
+@app.route('/register', methods=['POST'])
 def register():
     try:
         data = request.json
-        license_number = data.get('license_number')
-        name = data.get('name')
-        password = data.get('password')
-
-        if not all([license_number, name, password]):
+        print("Received registration data:", data)  # Debug print
+        
+        # Check required fields
+        required_fields = ['license_number', 'name', 'password']
+        if not all(field in data for field in required_fields):
             return jsonify({
                 'success': False,
-                'message': 'All fields are required'
+                'message': 'Missing required fields'
             }), 400
 
-        db = Database()
-        result = db.register_user(license_number, name, password)
-        db.close()
+        # Get optional fields
+        email = data.get('email')
+        specialization = data.get('specialization')
+        hospital = data.get('hospital')
 
-        if result['success']:
-            return jsonify(result), 201
-        return jsonify(result), 400
+        success, result = db.register_user(
+            data['license_number'],
+            data['name'],
+            data['password'],
+            email,
+            specialization,
+            hospital
+        )
+
+        if success:
+            return jsonify({
+                'success': True,
+                'user': result
+            }), 201
+        
+        return jsonify({
+            'success': False,
+            'message': result
+        }), 400
 
     except Exception as e:
+        print(f"Error in register endpoint: {e}")  # Debug print
         return jsonify({
             'success': False,
             'message': str(e)
         }), 500
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     try:
         data = request.json
-        license_number = data.get('license_number')
-        password = data.get('password')
-
-        if not all([license_number, password]):
+        if not data or 'license_number' not in data or 'password' not in data:
             return jsonify({
                 'success': False,
-                'message': 'All fields are required'
+                'message': 'Missing credentials'
             }), 400
 
-        db = Database()
-        result = db.login_user(license_number, password)
-        db.close()
-
-        if result['success']:
-            return jsonify(result), 200
-        return jsonify(result), 401
+        success, result = db.login_user(data['license_number'], data['password'])
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'user': result
+            }), 200
+        
+        return jsonify({
+            'success': False,
+            'message': result
+        }), 401
 
     except Exception as e:
+        print(f"Error in login endpoint: {e}")
         return jsonify({
             'success': False,
             'message': str(e)
